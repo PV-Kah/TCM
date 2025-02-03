@@ -37,74 +37,32 @@
             border-radius: 10px;
             text-align: center;
         }
+        .loading-popup .loading-image {
+            margin-bottom: 10px;
+        }
         .download-button {
             margin-top: 10px;
             position: relative;
             z-index: 1;
         }
-        .popup {
-            display: none;
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-            animation: popup-appear 0.3s ease-out;
-            z-index: 9999;
+
+        #progressBar {
+            margin-top: 20px;
+            height: 20px;
         }
-        .popup-overlay {
-            display: none;
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.3s ease-out;
-        }
-        .popup-overlay.active {
-            display: block;
-            opacity: 1;
-        }
-        @keyframes popup-appear {
-            0% {
-                transform: translate(-50%, -50%) scale(0.5);
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(1);
-            }
+
+        #progressMessage {
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <button id="guideButton" class="btn btn-primary">Hướng dẫn</button>
-        <div id="popup" class="popup">
-            <h2>Hướng dẫn</h2>
-            <p>Hiện Tại Website Chỉ Dịch Được Những Đoạn Như sau<br>
-            <ul>
-                <li>name: "text"</li>
-                <li>name: 'text'</li>
-                <li>name: text</li>
-                <li>name: '&atext'</li>
-            </ul>Ví dụ như
-            <ul>
-                <li>setting1: "This is the first setting"</li>
-                <li>setting2: 'This is the second setting'</li>
-                <li>setting3: This is the third setting</li>
-                <li>setting4: 'This is the second setting'</li>
-            </ul></p>
-            <button id="closeButton" class="btn btn-secondary">Đóng</button>
-        </div>
-        <div id="popupOverlay" class="popup-overlay"></div>
         <h1>Dịch Config</h1>
         <p>Chỉ Dịch File Language (Ngôn Ngữ)</p>
         <p>LƯU Ý: SAU KHI DỊCH XONG FILE MÀ MUỐN DỊCH TIẾP THÌ VUI LÒNG TẢI LẠI TRANG</p>
+
         <div class="form-group">
             <label for="configInput">Paste Config vào đây:</label>
             <textarea class="form-control" id="configInput" rows="5"></textarea>
@@ -120,9 +78,14 @@
             <div class="content">
                 <img src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif" width="50px" class="loading-image" alt="Loading...">
                 <div class="loading-message">Đang dịch...</div>
-                <div class="loading-message">Nếu dịch quá lâu thì là do file của bạn khá nặng <br>nên đợi tầm 3-5 phút để có thể hoàn thành</div>
             </div>
         </div>
+        
+        <div id="progressBar" class="progress" style="display: none;">
+            <div id="progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;"></div>
+        </div>
+        <div id="progressMessage"></div>
+
         <textarea id="resultText" class="form-control" placeholder="Translated text will appear here..." style="display: none;"></textarea>
         <a href="#" class="btn btn-success download-button" id="downloadButton" style="display: none;">Tải File Dịch</a>
     </div>
@@ -130,89 +93,115 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
     <script>
-        $(document).ready(function() {
-            // Toggle the guide popup
-            $('#guideButton').click(function() {
-                $('#popup').show();
-                $('#popupOverlay').addClass('active');
-            });
-            $('#closeButton').click(function() {
-                $('#popup').hide();
-                $('#popupOverlay').removeClass('active');
-            });
+        $('#button').click(function(){
+            var configText = $('#configInput').val();
+            var file = document.getElementById('configFile').files[0];
             
-            // Update filename label on file input change
-            $('#configFile').change(function () {
-                var fileName = $(this).val().split('\\').pop();
-                $(this).next('.custom-file-label').html(fileName);
-            });
-
-            // Process text and file inputs for translation
-            $('#button').click(function(){
-                var configText = $('#configInput').val();
-                var file = document.getElementById('configFile').files[0];
-
-                if (configText || file) {
-                    $('#loadingPopup').show();
-
-                    if (configText) {
-                        handleTranslation(configText);
-                    }
-                    if (file) {
-                        var reader = new FileReader();
-                        reader.readAsText(file, "UTF-8");
-                        reader.onload = function (evt) {
-                            handleTranslation(evt.target.result, file.name);
-                        };
-                    }
-                }
-            });
-
-            // Handle translation process
-            function handleTranslation(text, filename = 'translated_config.txt') {
+            if (configText) {
+                $('#loadingPopup').show();
+                $('#progressBar').show();
                 setTimeout(function() {
                     $('#loadingPopup').hide();
-                    var translatedText = translate(text);
-                    $('#resultText').val(translatedText).show();
-                    $('#downloadButton')
-                        .attr('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(translatedText))
-                        .attr('download', filename)
-                        .show();
-                }, 500);
+                    var translatedText = translate(configText);
+                    $('textarea#resultText').val(translatedText).show();
+                    $('#downloadButton').attr('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(translatedText)).attr('download', 'translated_config.txt');
+                    $('#downloadButton').show();
+                }, 500); 
             }
 
-            // Translation function
-            function translate(sourceText) {
-                var matches = sourceText.match(/.*: (.*)/g);
-                if (!matches) return sourceText;
-                var translatedText = sourceText;
-
-                matches.forEach(function(match) {
-                    var textToTranslate = match.match(/: (.*)/)[1];
-                    if (textToTranslate.trim() === 'true' || textToTranslate.trim() === 'false' || textToTranslate.trim() === 'disabled' || textToTranslate.trim() === 'enabled') return;
-
-                    // Skip translation if it's a number after "&" or contains <pos>
-                    if (textToTranslate.startsWith('&') && /^\d+$/.test(textToTranslate.substr(1)) || textToTranslate.includes('<pos>')) return;
-
-                    var url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURI(textToTranslate)}`;
-                    $.ajax({
-                        url: url,
-                        success: function(data) {
-                            translatedText = translatedText.replace(textToTranslate, data[0][0][0]);
-                        },
-                        async: false
-                    });
-                });
-
-                return translatedText;
+            if (file) {
+                var reader = new FileReader();
+                reader.readAsText(file, "UTF-8");
+                reader.onload = function (evt) {
+                    $('#loadingPopup').show();
+                    $('#progressBar').show();
+                    setTimeout(function() {
+                        $('#loadingPopup').hide();
+                        var translatedText = translate(evt.target.result);
+                        $('textarea#resultText').val(translatedText).show();
+                        $('#downloadButton').attr('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(translatedText)).attr('download', file.name);
+                        $('#downloadButton').show();
+                    }, 500);
+                }
             }
         });
-    </script>
 
-    <footer>
-        <div class="footer">
-            <p class="text-center">Code by Hoàng Kiệt</p>
-        </div>
-    </footer>
+        function translate(sourceText) {
+            var sourceLang = 'en';
+            var targetLang = 'vi';
+            var matches = sourceText.match(/.*: (.*)/g);
+            if (!matches) return;
+            var translationsDone = 0;
+            var translatedText = sourceText;
+
+            matches.forEach(function(match) {
+                var textToTranslate = match.match(/: (.*)/)[1];
+                
+                // Kiểm tra điều kiện bỏ qua việc dịch nếu là từ khóa không cần dịch
+                if (textToTranslate.trim() === 'true' || textToTranslate.trim() === 'false' || textToTranslate.trim() === 'disabled' || textToTranslate.trim() === 'enabled') {
+                    translationsDone++;
+                    return;
+                }
+                if (textToTranslate.startsWith('&') && /^\d+$/.test(textToTranslate.substr(1))) {
+                    translationsDone++;
+                    return;
+                }
+                if (textToTranslate.includes('<pos>')) {
+                    translationsDone++;
+                    return;
+                }
+                if (/^[A-Z]/.test(textToTranslate)) {
+                    translationsDone++;
+                    return;
+                }
+
+                var innerTranslation = '';
+                var outerText = textToTranslate.replace(/(\&\&.*?\&\&)/g, function(match) {
+                    innerTranslation = match;
+                    return '';
+                });
+
+                // Chia phần văn bản để dịch
+                var parts = outerText.split(/(&\w)/);
+                
+                parts.forEach(function(part, index) {
+                    if (!part.startsWith('&') && part !== '%%' && !/prefix/i.test(part)) {
+                        var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" + sourceLang + "&tl=" + targetLang + "&dt=t&q=" + encodeURI(part);
+                        $.ajax({
+                            url: url,
+                            success: function(data) {
+                                var translatedValue = data[0][0][0];
+                                parts[index] = translatedValue;
+                                translationsDone++;
+
+                                // Cập nhật thanh tiến độ
+                                var progress = Math.round((translationsDone / matches.length) * 100);
+                                $('#progress').css('width', progress + '%');
+                                $('#progressMessage').text(progress + "%");
+
+                                // Khi tất cả đã được dịch, ẩn thông báo tải
+                                if(translationsDone === matches.length) {
+                                    $('#loadingPopup').hide();
+                                }
+                            },
+                            async: false
+                        });
+                    }
+                });
+
+                var fullTranslatedValue = parts.join('');
+                fullTranslatedValue = fullTranslatedValue.replace(/\[pos\]/g, '<pos>');
+                fullTranslatedValue = fullTranslatedValue.replace(/\[(\d)\]/g, '{$1}');
+
+                if (innerTranslation) {
+                    fullTranslatedValue += ' ' + innerTranslation;
+                }
+
+                translatedText = translatedText.replace(textToTranslate, fullTranslatedValue);
+            });
+
+            return translatedText;
+        }
+    </script>
 </body>
 </html>
