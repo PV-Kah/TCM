@@ -1,23 +1,28 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dịch Config</title>
+    <title>TRANSLATE CONFIG MINECRAFT JS</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+
     <style>
         body {
             padding: 20px;
+            background-color: #121212; /* Màu nền tối */
+            color: #e0e0e0; /* Màu chữ sáng */
         }
         #resultText {
             min-height: 200px;
+            background-color: #333; /* Màu nền tối */
+            color: #e0e0e0; /* Màu chữ sáng */
         }
         .footer {
             position: fixed;
             bottom: 0;
             width: 100%;
             height: 60px;
+            background-color: #1c1c1c; /* Màu nền tối */
+            color: #e0e0e0; /* Màu chữ sáng */            
         }
         .loading-popup {
             position: fixed;
@@ -25,14 +30,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.8); /* Overlay tối hơn */
             z-index: 9999;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .loading-popup .content {
-            background-color: white;
+            background-color: #333;
+            color: #e0e0e0; /* Màu chữ sáng */
             padding: 20px;
             border-radius: 10px;
             text-align: center;
@@ -44,164 +50,316 @@
             margin-top: 10px;
             position: relative;
             z-index: 1;
+            background-color: #444; /* Màu nền tối */
+            color: #e0e0e0; /* Màu chữ sáng */
+        }
+.popup {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #333; /* Màu nền tối */
+    color: #e0e0e0; /* Màu chữ sáng */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    animation: popup-appear 0.3s ease-out;
+    z-index: 9999;
+}
+.popup-overlay {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Giữ nguyên màu tối */
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+.popup-overlay.active {
+    display: block;
+    opacity: 1; /* Độ mờ 1 khi popup được kích hoạt */
+}
+
+        
+        @keyframes popup-appear {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+    </style>  
+<head>
+    <style>
+        /* Làm đẹp cho chữ "Hướng dẫn" */
+        #guideButton {
+            font-size: 12px; /* Kích thước chữ nhỏ */
+            color: #007bff; /* Màu chữ giống như nút Bootstrap */
+            cursor: pointer; /* Con trỏ chuột khi hover vào */
+        }
+        #guideButton:hover {
+            text-decoration: underline; /* Gạch chân khi hover */
         }
 
-        #progressBar {
-            margin-top: 20px;
-            height: 20px;
+        /* Đảm bảo popup được căn giữa */
+        .popup {
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        #progressMessage {
+        .loading-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #resultText {
+            min-height: 150px;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: 10px;
             text-align: center;
-            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Web Dịch Config v2</h1>
+        <span id="guideButton">Hướng dẫn</span>
+
+        <!-- Popup hướng dẫn -->
+        <div id="popup" class="popup">
+            <h2>Hướng dẫn</h2>
+            <p>Hiện Tại Website Chỉ Dịch Được Những Đoạn Như sau:</p>
+            <ul>
+                <li>name: "text"</li>
+                <li>name: 'text'</li>
+                <li>name: text</li>
+                <li>name: '&atext'</li>
+            </ul>
+            <p>Ví dụ như:</p>
+            <ul>
+                <li>setting1: "This is the first setting"</li>
+                <li>setting2: 'This is the second setting'</li>
+                <li>setting3: This is the third setting</li>
+                <li>setting4: 'This is the second setting'</li>
+            </ul>
+            <button id="closeButton" class="btn btn-secondary">Đóng</button>
+        </div>
+
+        <div id="popupOverlay" class="popup-overlay"></div>
+
+        <h1>TRANSLATE CONFIG MINECRAFT JS v2</h1>
         <p>Chỉ Dịch File Language (Ngôn Ngữ)</p>
         <p>LƯU Ý: SAU KHI DỊCH XONG FILE MÀ MUỐN DỊCH TIẾP THÌ VUI LÒNG TẢI LẠI TRANG</p>
 
+        <!-- Input config -->
         <div class="form-group">
             <label for="configInput">Paste Config vào đây:</label>
             <textarea class="form-control" id="configInput" rows="5"></textarea>
         </div>
-        <br>
+
         <p>HOẶC</p>
+
+        <!-- Chọn file config -->
         <div class="custom-file mb-3">
             <input type="file" class="custom-file-input" id="configFile" name="configFile">
             <label class="custom-file-label" for="configFile">Bấm Vào Đây Để Chọn File | Kéo File Vào Đây</label>
         </div>
+
         <button id="button" class="btn btn-primary mb-3">Dịch</button>
-        <div class="loading-popup" id="loadingPopup" style="display: none;">
+
+        <!-- Loading popup -->
+        <div class="loading-popup" id="loadingPopup">
             <div class="content">
                 <img src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif" width="50px" class="loading-image" alt="Loading...">
                 <div class="loading-message">Đang dịch...</div>
+                <div class="loading-message">Nếu dịch quá lâu thì là do file của bạn khá nặng. Vui lòng đợi 3-5 phút.</div>
             </div>
         </div>
-        
-        <div id="progressBar" class="progress" style="display: none;">
-            <div id="progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;"></div>
-        </div>
-        <div id="progressMessage"></div>
 
+        <!-- Kết quả dịch -->
         <textarea id="resultText" class="form-control" placeholder="Translated text will appear here..." style="display: none;"></textarea>
         <a href="#" class="btn btn-success download-button" id="downloadButton" style="display: none;">Tải File Dịch</a>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
-    <script>
-        $('#button').click(function(){
-            var configText = $('#configInput').val();
-            var file = document.getElementById('configFile').files[0];
-            
-            if (configText) {
+<script>
+        $(document).ready(function() {
+            $('#guideButton').click(function() {
+                $('#popup').show();
+            });
+            $('#closeButton').click(function() {
+                $('#popup').hide();
+            });
+            $('#dongButton').click(function() {
+                $('#thongbao').hide();
+            });
+        });
+    $('#configFile').change(function () {
+        var fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').html(fileName);
+    });
+
+
+    $('#button').click(function(){
+        var configText = $('#configInput').val();
+        var file = document.getElementById('configFile').files[0];
+        if (configText) {
+            $('#loadingPopup').show();
+            setTimeout(function() {
+                $('#loadingPopup').hide();
+                var translatedText = translate(configText);
+                $('textarea#resultText').val(translatedText).show();
+                $('#downloadButton').attr('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(translatedText)).attr('download', 'translated_config.txt');
+                $('#downloadButton').show();
+            }, 500); 
+        }
+        if (file) {
+            var reader = new FileReader();
+            reader.readAsText(file, "UTF-8");
+            reader.onload = function (evt) {
                 $('#loadingPopup').show();
-                $('#progressBar').show();
                 setTimeout(function() {
                     $('#loadingPopup').hide();
-                    var translatedText = translate(configText);
+                    var translatedText = translate(evt.target.result);
                     $('textarea#resultText').val(translatedText).show();
-                    $('#downloadButton').attr('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(translatedText)).attr('download', 'translated_config.txt');
+                    $('#downloadButton').attr('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(translatedText)).attr('download', file.name);
                     $('#downloadButton').show();
-                }, 500); 
+                }, 500);
             }
+        }
+    });
 
-            if (file) {
-                var reader = new FileReader();
-                reader.readAsText(file, "UTF-8");
-                reader.onload = function (evt) {
-                    $('#loadingPopup').show();
-                    $('#progressBar').show();
-                    setTimeout(function() {
-                        $('#loadingPopup').hide();
-                        var translatedText = translate(evt.target.result);
-                        $('textarea#resultText').val(translatedText).show();
-                        $('#downloadButton').attr('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(translatedText)).attr('download', file.name);
-                        $('#downloadButton').show();
-                    }, 500);
-                }
+function translate(sourceText) {
+    var sourceLang = 'en';
+    var targetLang = 'vi';
+    var matches = sourceText.match(/.*: (.*)/g);
+    if (!matches) return;
+    var translationsDone = 0;
+    var translatedText = sourceText;
+
+    matches.forEach(function(match) {
+        var textToTranslate = match.match(/: (.*)/)[1];
+        if (textToTranslate.trim() === 'true' || textToTranslate.trim() === 'false' || textToTranslate.trim() === 'disabled' || textToTranslate.trim() === 'enabled') {
+            translationsDone++;
+            return;
+        }
+        
+        // Kiểm tra nếu từ đằng sau dấu & là số
+        if (textToTranslate.startsWith('&') && /^\d+$/.test(textToTranslate.substr(1))) {
+            translationsDone++;
+            return;
+        }
+        
+        // Kiểm tra nếu cấu trúc chứa dấu <pos>
+        if (textToTranslate.includes('<pos>')) {
+            translationsDone++;
+            return;
+        }
+        
+        // Kiểm tra nếu từ có chữ hoa ở đầu
+        if (/^[A-Z]/.test(textToTranslate)) {
+            translationsDone++;
+            return;
+        }
+
+        // Thay thế dấu < và > bằng [ và ]
+        textToTranslate = textToTranslate.replace(/<pos>/g, '[pos]');        
+        textToTranslate = textToTranslate.replace(/\{(\d+)\}/g, '{$1}');
+        textToTranslate = textToTranslate.replace(/\[(\d+)\]/g, '[$1]');
+
+        // Tách phần dịch bên trong dấu && và phần còn lại
+        var innerTranslation = '';
+        var outerText = textToTranslate.replace(/(\&\&.*?\&\&)/g, function(match) {
+            innerTranslation = match;
+            return '';
+        });
+        
+        // Split the string into parts based on special characters
+        var parts = outerText.split(/(&\w)/);
+        
+        parts.forEach(function(part, index) {
+            // Only translate parts that do not start with a special character
+            if (!part.startsWith('&') && part !== '%%' && !/prefix/i.test(part)) {
+                var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl="+ sourceLang + "&tl=" + targetLang + "&dt=t&q=" + encodeURI(part);
+                $.ajax({
+                    url: url,
+                    success: function(data) {
+                        var translatedValue = data[0][0][0];
+                        // Replace the original part with the translated part
+                        parts[index] = translatedValue;
+                        translationsDone++;
+                        
+                        var progress = Math.round((translationsDone / matches.length) * 100);
+                        $('#progressMessage').text(progress + "%");
+
+                        if(translationsDone === matches.length) {
+                            $('#loadingMessage').hide();
+                        }
+                    },
+                    async: false
+                });
             }
         });
+        
+                // Join the translated parts back together
+        var fullTranslatedValue = parts.join('');
 
-        function translate(sourceText) {
-            var sourceLang = 'en';
-            var targetLang = 'vi';
-            var matches = sourceText.match(/.*: (.*)/g);
-            if (!matches) return;
-            var translationsDone = 0;
-            var translatedText = sourceText;
+        // Thay thế lại dấu [ và ] thành < và >
+        fullTranslatedValue = fullTranslatedValue.replace(/\[pos]/g, '<pos>');   
+        fullTranslatedValue = fullTranslatedValue.replace(/\{(\d+)\}/g, '{$1}');
+        fullTranslatedValue = fullTranslatedValue.replace(/\[(\d+)\]/g, '[$1]');
 
-            matches.forEach(function(match) {
-                var textToTranslate = match.match(/: (.*)/)[1];
-                
-                // Kiểm tra điều kiện bỏ qua việc dịch nếu là từ khóa không cần dịch
-                if (textToTranslate.trim() === 'true' || textToTranslate.trim() === 'false' || textToTranslate.trim() === 'disabled' || textToTranslate.trim() === 'enabled') {
-                    translationsDone++;
-                    return;
-                }
-                if (textToTranslate.startsWith('&') && /^\d+$/.test(textToTranslate.substr(1))) {
-                    translationsDone++;
-                    return;
-                }
-                if (textToTranslate.includes('<pos>')) {
-                    translationsDone++;
-                    return;
-                }
-                if (/^[A-Z]/.test(textToTranslate)) {
-                    translationsDone++;
-                    return;
-                }
-
-                var innerTranslation = '';
-                var outerText = textToTranslate.replace(/(\&\&.*?\&\&)/g, function(match) {
-                    innerTranslation = match;
-                    return '';
-                });
-
-                // Chia phần văn bản để dịch
-                var parts = outerText.split(/(&\w)/);
-                
-                parts.forEach(function(part, index) {
-                    if (!part.startsWith('&') && part !== '%%' && !/prefix/i.test(part)) {
-                        var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" + sourceLang + "&tl=" + targetLang + "&dt=t&q=" + encodeURI(part);
-                        $.ajax({
-                            url: url,
-                            success: function(data) {
-                                var translatedValue = data[0][0][0];
-                                parts[index] = translatedValue;
-                                translationsDone++;
-
-                                // Cập nhật thanh tiến độ
-                                var progress = Math.round((translationsDone / matches.length) * 100);
-                                $('#progress').css('width', progress + '%');
-                                $('#progressMessage').text(progress + "%");
-
-                                // Khi tất cả đã được dịch, ẩn thông báo tải
-                                if(translationsDone === matches.length) {
-                                    $('#loadingPopup').hide();
-                                }
-                            },
-                            async: false
-                        });
-                    }
-                });
-
-                var fullTranslatedValue = parts.join('');
-                fullTranslatedValue = fullTranslatedValue.replace(/\[pos\]/g, '<pos>');
-                fullTranslatedValue = fullTranslatedValue.replace(/\[(\d)\]/g, '{$1}');
-
-                if (innerTranslation) {
-                    fullTranslatedValue += ' ' + innerTranslation;
-                }
-
-                translatedText = translatedText.replace(textToTranslate, fullTranslatedValue);
-            });
-
-            return translatedText;
+        // Nếu có phần dịch bên trong dấu &&
+        if (innerTranslation) {
+            // Thay thế phần dịch bên trong bằng chính nó
+            fullTranslatedValue += ' ' + innerTranslation;
         }
-    </script>
+
+        translatedText = translatedText.replace(textToTranslate, fullTranslatedValue);
+    });
+        
+    return translatedText;
+}
+
+
+
+
+$(document).ready(function() {
+    $("#thongbao").fadeIn();
+});
+
+
+</script>
+
+<div id="thongbao" class="popup">
+            <center><h2>Thông Báo</h2></center>
+            <center><p>Hiện Tại Website Đã Có Thể Dịch Được Hầu Hết Config<br>Tham Gia <a style="color: blue;" href="https://discord.gg/Hgt4Y7KRNT"> DISCORD </a>Để Nhận 1 Số Thông Báo Và<br>Báo Lỗi Trong Quá Trình Sử Dụng Web
+            </p></center>
+            <button id="dongButton" class="btn btn-secondary">Đóng</button>
+        </div>
+
+    <footer>
+        <div class="footer">
+            <p class="text-center">TRANSLATE CONFIG MINECRAFT JS</p>
+        </div>
+    </footer>
 </body>
 </html>
