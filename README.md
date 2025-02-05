@@ -31,6 +31,8 @@ Bây giờ, thêm kho lưu trữ cho Vivaldi với:
 
 traceroute azmc.vn
 sudo add-apt-repository 'deb https://repo.vivaldi.com/archive/deb/ stable main'
+
+https://downloads.vivaldi.com/stable/vivaldi-stable_7.1.3570.47-1_amd64.deb
 Cuối cùng, chạy lệnh dưới đây để cập nhật kho lưu trữ hệ thống của bạn và cài đặt Vivaldi:
 
 sudo apt update && sudo apt install vivaldi-stable
